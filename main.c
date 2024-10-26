@@ -1,78 +1,111 @@
-#include "bit_operations.h"
+#include <stdlib.h>
+#include <stdarg.h>
 #include <stdio.h>
+#include <time.h>
+#include <math.h>
+
+#define MAX 10
+#define MIN 0
+
+/* Function to calculate the average of a variable number of integers */
+double average_1(int count, ...) {
+    va_list args;
+    double sum = 0;
+    int i;
+
+    va_start(args, count);
+    for (i = 0; i < count; i++) {
+        sum += va_arg(args, int);
+    }
+    va_end(args);
+    return sum / count;
+}
+
+/* Function to calculate the average of an integer array */
+double average(int *arr, int size) {
+    double sum = 0;
+    int i;
+
+    for (i = 0; i < size; i++) {
+        sum += arr[i];
+    }
+    return sum / size;
+}
+
+/* Function to calculate a specific mathematical expression */
+double calculate_expression(double x, double y, double z) {
+    return sqrt(fabs(-3 * log(x) * log10(z * z + y) / sqrt(fabs(x)) + 1));
+}
+
+/* Function to prompt user input and process the expression */
+void process_expression(double (*expr_func)(double, double, double)) {
+    double x, y, z, result;
+    printf("Enter x, y, and z: ");
+    scanf("%lf %lf %lf", &x, &y, &z);
+
+    if (x == 0) {
+        printf("Error\n");
+        return;
+    }
+
+    result = expr_func(x, y, z);
+    printf("Result: %lf\n", result);
+}
+
+/* Function to manipulate arrays in an unsafe manner (for demonstration purposes) */
+void hack_array(){
+    int arr1[10], arr2[10];
+    int i;
+
+    for(i = 0; i < 10; i++){
+        arr1[i] = rand() % (MAX - MIN + MIN) + MIN;
+        arr2[i] = rand() % (MAX - MIN + MIN) + MIN;
+        printf("%d ", arr1[i]);
+        printf("%d\n", arr2[i]);
+    }
+    *(arr1 + 11) = 99999;  // Deliberate out-of-bounds access
+    printf("%d %d %d\n", arr1[8], arr1[9], arr1[11]);
+    printf("%d %d %d\n", arr2[0], arr2[1], arr2[2]);
+}
 
 int main() {
-    // Пример для uint8_t
-    uint8_t value8 = 0xAA;  // 10101010 в двоичной системе
-    uint8_t mask8 = 0x0F;   // Маска для младших 4 бит
+    int random_numbers[10];
+    int array[10];
+    int arr[10];
+    int i;
 
-    // Установка битов в 1 по маске
-    value8 = SET_BITS(value8, mask8);
-    printf("uint8_t after setting bits: 0x%X\n", value8);
+    srand(time(NULL));
 
-    // Установка битов в 0 по маске
-    value8 = CLEAR_BITS(value8, mask8);
-    printf("uint8_t after clearing bits: 0x%X\n", value8);
+    for (i = 0; i < 10; i++) {
+        random_numbers[i] = rand() % 100;
+        printf("%d ", random_numbers[i]);
+    }
+    printf("\n");
 
-    // Инверсия битов по маске
-    value8 = TOGGLE_BITS(value8, mask8);
-    printf("uint8_t after toggling bits: 0x%X\n", value8);
+    double avg_1 = average_1(10, random_numbers[0], random_numbers[1], random_numbers[2],
+                              random_numbers[3], random_numbers[4], random_numbers[5],
+                              random_numbers[6], random_numbers[7], random_numbers[8],
+                              random_numbers[9]);
 
-    // Логический сдвиг вправо
-    value8 = LOGICAL_SHIFT_RIGHT(value8, 2);
-    printf("uint8_t after logical shift right: 0x%X\n", value8);
+    printf("average_1: %.2f\n", avg_1);
 
-    // Циклический сдвиг влево
-    value8 = ROTATE_LEFT_8(value8, 3);
-    printf("uint8_t after rotate left 8: 0x%X\n", value8);
+    for (i = 0; i < 10; i++) {
+        array[i] = rand() % 100;
+        printf("%d ", array[i]);
+    }
+    printf("\n");
 
-    // Пример для uint16_t
-    uint16_t value16 = 0xA5A5; // 1010010110100101 в двоичной системе
-    uint16_t mask16 = 0x00FF;  // Маска для младшего байта
+    double avg_2 = average(array, 10);
+    printf("average_2: %.2f\n", avg_2);
 
-    // Установка битов в 1 по маске
-    value16 = SET_BITS(value16, mask16);
-    printf("uint16_t after setting bits: 0x%X\n", value16);
+    process_expression(calculate_expression);
 
-    // Установка битов в 0 по маске
-    value16 = CLEAR_BITS(value16, mask16);
-    printf("uint16_t after clearing bits: 0x%X\n", value16);
+    for (i = 0; i < 10; i++) {
+        arr[i] = rand() % (MAX - MIN + MIN) + MIN;
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
 
-    // Инверсия битов по маске
-    value16 = TOGGLE_BITS(value16, mask16);
-    printf("uint16_t after toggling bits: 0x%X\n", value16);
-
-    // Логический сдвиг вправо
-    value16 = LOGICAL_SHIFT_RIGHT(value16, 3);
-    printf("uint16_t after logical shift right: 0x%X\n", value16);
-
-    // Циклический сдвиг влево
-    value16 = ROTATE_LEFT_16(value16, 4);
-    printf("uint16_t after rotate left 16: 0x%X\n", value16);
-
-    // Пример для uint32_t
-    uint32_t value32 = 0xA5A5A5A5; // 10100101101001011010010110100101
-    uint32_t mask32 = 0x0000FFFF;  // Маска для младших 16 бит
-
-    // Установка битов в 1 по маске
-    value32 = SET_BITS(value32, mask32);
-    printf("uint32_t after setting bits: 0x%X\n", value32);
-
-    // Установка битов в 0 по маске
-    value32 = CLEAR_BITS(value32, mask32);
-    printf("uint32_t after clearing bits: 0x%X\n", value32);
-
-    // Инверсия битов по маске
-    value32 = TOGGLE_BITS(value32, mask32);
-    printf("uint32_t after toggling bits: 0x%X\n", value32);
-
-    // Логический сдвиг вправо
-    value32 = LOGICAL_SHIFT_RIGHT(value32, 5);
-    printf("uint32_t after logical shift right: 0x%X\n", value32);
-
-    // Циклический сдвиг вправо
-    value32 = ROTATE_RIGHT_32(value32, 8);
-    printf("uint32_t after rotate right 32: 0x%X\n", value32);
-
+    hack_array();
     return 0;
 }
